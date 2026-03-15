@@ -1,9 +1,10 @@
 import { useLocation } from "react-router";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from "recharts";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/Results.css";
 import type { SavedSkill } from "../api";
+import { generateSummary } from "../api";
 
 interface SkillData {
   skill: string;
@@ -165,12 +166,22 @@ export default function Results() {
     fallbackResults,
     roleLabel = "Роль",
     roleScore,
+    openAnswers = [],
   } = (location.state ?? {}) as {
     apiSkills?: SavedSkill[];
     fallbackResults?: { skillSlug: string; score: number; level: string }[];
     roleLabel?: string;
     roleScore?: number;
+    openAnswers?: {
+      question: string;
+      answer: string;
+      score: number;
+      feedback: string;
+    }[];
   };
+
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   let skillsData: SkillData[] = [];
 
@@ -203,6 +214,25 @@ export default function Results() {
     value: item.level,
   }));
 
+  // ── Generate AI summary once on mount ────────────────────────────────────
+  useEffect(() => {
+    if (openAnswers.length === 0) return;
+    setSummaryLoading(true);
+    generateSummary({
+      roleLabel,
+      roleScore: computedRoleScore,
+      skillResults: skillsData.map((s) => ({
+        label: s.skill,
+        score: Math.round((s.level / 5) * 100),
+        level: s.levelLabel,
+      })),
+      openAnswers,
+    })
+      .then((res) => setAiSummary(res.summary))
+      .catch(() => setAiSummary(null))
+      .finally(() => setSummaryLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="results-container">
       <header className="header">SkillRoad</header>
@@ -228,6 +258,59 @@ export default function Results() {
         </div>
 
         <h1 className="results-title">Деталі по навичках</h1>
+
+        {/* ── AI Summary ── */}
+        {openAnswers.length > 0 && (
+          <div className="ai-summary-card">
+            <div className="ai-summary-header">
+              <span className="ai-summary-icon">🤖</span>
+              <span className="ai-summary-title">AI-оцінка кандидата</span>
+            </div>
+            {summaryLoading ? (
+              <p className="ai-summary-loading">Генерую опис…</p>
+            ) : aiSummary ? (
+              <p className="ai-summary-text">{aiSummary}</p>
+            ) : null}
+          </div>
+        )}
+
+        {/* ── Open-ended Q&A feedback ── */}
+        {openAnswers.length > 0 && (
+          <div className="ai-answers-section">
+            <h2 className="ai-answers-title">Відкриті питання та оцінка</h2>
+            <div className="ai-answers-list">
+              {openAnswers.map((item, i) => {
+                const scoreColor =
+                  item.score >= 8
+                    ? "#10b981"
+                    : item.score >= 5
+                    ? "#3b82f6"
+                    : "#f59e0b";
+                return (
+                  <div key={i} className="ai-answer-card">
+                    <div className="ai-answer-question">
+                      <span className="ai-answer-num">Q{i + 1}</span>
+                      {item.question}
+                    </div>
+                    <div className="ai-answer-user">
+                      <span className="ai-answer-label">Ваша відповідь:</span>
+                      <p>{item.answer || "—"}</p>
+                    </div>
+                    <div className="ai-answer-result">
+                      <span
+                        className="ai-answer-score"
+                        style={{ color: scoreColor, borderColor: scoreColor }}
+                      >
+                        {item.score}/10
+                      </span>
+                      <p className="ai-answer-feedback">{item.feedback}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="radar-section">
           <ResponsiveContainer width="100%" height={400}>

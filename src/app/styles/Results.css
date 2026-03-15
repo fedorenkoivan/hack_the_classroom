@@ -243,3 +243,135 @@
     padding-left: 1.5rem;
   }
 }
+
+/* ─── AI Summary ──────────────────────────────────────────────────────────────── */
+
+.ai-summary-card {
+  background: white;
+  border-radius: 1.25rem;
+  padding: 1.75rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
+  border-left: 4px solid #8b5cf6;
+}
+
+.ai-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.ai-summary-icon {
+  font-size: 1.4rem;
+}
+
+.ai-summary-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.ai-summary-loading {
+  color: #6b7280;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+.ai-summary-text {
+  color: #374151;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* ─── AI Open-ended answers ───────────────────────────────────────────────────── */
+
+.ai-answers-section {
+  margin-bottom: 2rem;
+}
+
+.ai-answers-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.ai-answers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ai-answer-card {
+  background: white;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.ai-answer-question {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  line-height: 1.5;
+}
+
+.ai-answer-num {
+  background: #8b5cf6;
+  color: white;
+  border-radius: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  margin-top: 0.15rem;
+}
+
+.ai-answer-user {
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.ai-answer-label {
+  display: block;
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+
+.ai-answer-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.ai-answer-score {
+  font-size: 1.15rem;
+  font-weight: 800;
+  border: 2px solid;
+  border-radius: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  white-space: nowrap;
+  line-height: 1;
+  align-self: center;
+}
+
+.ai-answer-feedback {
+  color: #374151;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
