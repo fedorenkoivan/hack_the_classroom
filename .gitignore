@@ -34,3 +34,4 @@ api/.env
 api/prisma/dev.db
 api/prisma/dev.db-journal
 api/dist/
+.vercel
