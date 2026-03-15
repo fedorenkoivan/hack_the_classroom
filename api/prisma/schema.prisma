@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Skill {
+  id         String      @id @default(cuid())
+  slug       String      @unique
+  label      String
+  createdAt  DateTime    @default(now())
+  questions  Question[]
+  repos      Repo[]
+  userSkills UserSkill[]
+}
+
+model Repo {
+  id      String @id @default(cuid())
+  name    String
+  url     String
+  level   String
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id])
+}
+
+model Question {
+  id      String           @id @default(cuid())
+  text    String
+  order   Int
+  skillId String
+  skill   Skill            @relation(fields: [skillId], references: [id])
+  options QuestionOption[]
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  label      String
+  score      Int
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+model User {
+  id         String      @id @default(cuid())
+  sessionId  String      @unique
+  createdAt  DateTime    @default(now())
+  userSkills UserSkill[]
+}
+
+model UserSkill {
+  id        String   @id @default(cuid())
+  userId    String
+  skillId   String
+  score     Int
+  level     String
+  createdAt DateTime @default(now())
+  skill     Skill    @relation(fields: [skillId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, skillId])
+}

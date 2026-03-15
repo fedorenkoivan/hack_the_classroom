@@ -1,102 +1,187 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import "../styles/Quiz.css";
+import { fetchQuiz, submitResults } from "../api";
+import type { QuizSkill, QuizQuestion, QuizOption } from "../api";
 
-interface Question {
-  id: number;
-  question: string;
-  options: string[];
-  correctAnswer: number;
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Унікальний ID сесії браузера — зберігаємо в sessionStorage */
+function getSessionId(): string {
+  let id = sessionStorage.getItem("sessionId");
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem("sessionId", id);
+  }
+  return id;
 }
 
-const quizQuestions: Question[] = [
-  {
-    id: 1,
-    question: "Що таке замикання (closure) в JavaScript?",
-    options: [
-      "Функція, яка має доступ до зовнішньої області видимості",
-      "Метод закриття браузера",
-      "Спосіб видалення змінних",
-      "Тип циклу",
-    ],
-    correctAnswer: 0,
-  },
-  {
-    id: 2,
-    question: "Яка різниця між let та const?",
-    options: [
-      "const не можна переприсвоїти",
-      "let працює швидше",
-      "const використовується для чисел",
-      "Немає різниці",
-    ],
-    correctAnswer: 0,
-  },
-  {
-    id: 3,
-    question: "Що робить хук useState в React?",
-    options: [
-      "Дозволяє використовувати стан в функціональних компонентах",
-      "Перевіряє стан додатку",
-      "Зберігає дані в localStorage",
-      "Оновлює DOM напряму",
-    ],
-    correctAnswer: 0,
-  },
-  {
-    id: 4,
-    question: "Що таке Promise в JavaScript?",
-    options: [
-      "Об'єкт для роботи з асинхронними операціями",
-      "Обіцянка виконати код",
-      "Тип даних для чисел",
-      "Метод масиву",
-    ],
-    correctAnswer: 0,
-  },
-  {
-    id: 5,
-    question: "Яка різниця між == та ===?",
-    options: [
-      "=== порівнює значення та тип",
-      "== працює швидше",
-      "=== використовується лише для чисел",
-      "Немає різниці",
-    ],
-    correctAnswer: 0,
-  },
-];
+/**
+ * Skill slug mapping: лейбли з Home → slug у БД
+ * (Home передає лейбли типу "JavaScript", бек очікує "js")
+ */
+const LABEL_TO_SLUG: Record<string, string> = {
+  JavaScript: "js",
+  TypeScript: "ts",
+  React: "react",
+  "Node.js": "nodejs",
+  Python: "python",
+  Java: "java",
+  "C++": "cpp",
+  "HTML/CSS": "htmlcss",
+  SQL: "sql",
+  Git: "git",
+};
+
+// ─── Flat list of questions from all skills ───────────────────────────────────
+
+interface FlatQuestion {
+  skillSlug: string;
+  skillLabel: string;
+  question: QuizQuestion;
+}
+
+function flattenQuestions(skills: QuizSkill[]): FlatQuestion[] {
+  return skills.flatMap((skill) =>
+    skill.questions.map((q) => ({
+      skillSlug: skill.slug,
+      skillLabel: skill.label,
+      question: q,
+    }))
+  );
+}
+
+// ─── Score calculation ────────────────────────────────────────────────────────
+
+function calcSkillResults(
+  flat: FlatQuestion[],
+  selectedOptions: Record<number, string> // index → optionId
+): { skillSlug: string; score: number; level: string }[] {
+  const bySkill: Record<string, { total: number; sum: number }> = {};
+
+  flat.forEach((item, index) => {
+    const slug = item.skillSlug;
+    if (!bySkill[slug]) bySkill[slug] = { total: 0, sum: 0 };
+
+    const chosenOptionId = selectedOptions[index];
+    const chosenOption = item.question.options.find((o) => o.id === chosenOptionId);
+    const maxScore = Math.max(...item.question.options.map((o) => o.score));
+
+    bySkill[slug].total += maxScore || 1;
+    bySkill[slug].sum += chosenOption?.score ?? 0;
+  });
+
+  return Object.entries(bySkill).map(([skillSlug, { total, sum }]) => {
+    const score = total > 0 ? Math.round((sum / total) * 100) : 0;
+    const level =
+      score >= 70 ? "Strong Middle" : score >= 40 ? "Middle" : "Junior";
+    return { skillSlug, score, level };
+  });
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Quiz() {
   const location = useLocation();
   const navigate = useNavigate();
-  const skills = location.state?.skills || [];
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [answers, setAnswers] = useState<number[]>([]);
 
-  const handleNext = () => {
-    if (selectedAnswer !== null) {
-      const newAnswers = [...answers, selectedAnswer];
-      setAnswers(newAnswers);
+  // skills — масив лейблів з Home ("JavaScript", "React", …)
+  const selectedLabels: string[] = location.state?.skills ?? [];
 
-      if (currentQuestion < quizQuestions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
-        setSelectedAnswer(null);
-      } else {
-        // Завершити квіз і перейти до результатів
-        navigate("/results", {
-          state: {
-            skills,
-            answers: newAnswers,
-            questions: quizQuestions,
-          },
-        });
-      }
+  const [flat, setFlat] = useState<FlatQuestion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState<Record<number, string>>({});
+
+  // ── Load questions from API ──────────────────────────────────────────────
+  useEffect(() => {
+    const slugs = selectedLabels
+      .map((l) => LABEL_TO_SLUG[l])
+      .filter(Boolean);
+
+    fetchQuiz(slugs.length > 0 ? slugs : undefined)
+      .then((skills) => {
+        // Якщо немає slugs у БД — зберігаємо всі скіли
+        const filtered =
+          slugs.length > 0
+            ? skills.filter((s) => slugs.includes(s.slug))
+            : skills;
+        setFlat(flattenQuestions(filtered));
+        setLoading(false);
+      })
+      .catch(() => {
+        setError("Не вдалося завантажити питання. Перевір чи запущений бекенд.");
+        setLoading(false);
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Handlers ────────────────────────────────────────────────────────────
+  const handleSelect = (optionId: string) => {
+    setSelectedOptions((prev) => ({ ...prev, [currentIndex]: optionId }));
+  };
+
+  const handleNext = async () => {
+    if (!selectedOptions[currentIndex]) return;
+
+    if (currentIndex < flat.length - 1) {
+      setCurrentIndex((i) => i + 1);
+      return;
+    }
+
+    // ── Last question → submit ─────────────────────────────────────────────
+    setSubmitting(true);
+    try {
+      const results = calcSkillResults(flat, selectedOptions);
+      const sessionId = getSessionId();
+      const response = await submitResults(sessionId, results);
+
+      navigate("/results", { state: { apiSkills: response.skills } });
+    } catch {
+      // Якщо бекенд недоступний — переходимо без даних з API
+      const results = calcSkillResults(flat, selectedOptions);
+      navigate("/results", {
+        state: {
+          fallbackResults: results,
+          skillLabels: selectedLabels,
+        },
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const question = quizQuestions[currentQuestion];
+  // ── Render states ────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="quiz-container">
+        <header className="header">SkillRoad</header>
+        <div className="quiz-content">
+          <p style={{ textAlign: "center", marginTop: "2rem" }}>
+            Завантаження питань…
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || flat.length === 0) {
+    return (
+      <div className="quiz-container">
+        <header className="header">SkillRoad</header>
+        <div className="quiz-content">
+          <p style={{ textAlign: "center", marginTop: "2rem", color: "red" }}>
+            {error ?? "Питань не знайдено для вибраних навичок."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const { question, skillLabel } = flat[currentIndex];
+  const chosen = selectedOptions[currentIndex];
 
   return (
     <div className="quiz-container">
@@ -104,22 +189,20 @@ export default function Quiz() {
 
       <div className="quiz-content">
         <h2 className="question-title">
-          Питання: {currentQuestion + 1}
+          {skillLabel} — Питання {currentIndex + 1}
         </h2>
 
         <div className="question-card">
-          <h3 className="question-text">{question.question}</h3>
+          <h3 className="question-text">{question.text}</h3>
 
           <div className="options-grid">
-            {question.options.map((option, index) => (
+            {question.options.map((option: QuizOption) => (
               <button
-                key={index}
-                className={`option-button ${
-                  selectedAnswer === index ? "selected" : ""
-                }`}
-                onClick={() => setSelectedAnswer(index)}
+                key={option.id}
+                className={`option-button ${chosen === option.id ? "selected" : ""}`}
+                onClick={() => handleSelect(option.id)}
               >
-                {option}
+                {option.text}
               </button>
             ))}
           </div>
@@ -127,16 +210,18 @@ export default function Quiz() {
           <button
             className="next-button"
             onClick={handleNext}
-            disabled={selectedAnswer === null}
+            disabled={!chosen || submitting}
           >
-            {currentQuestion < quizQuestions.length - 1
+            {submitting
+              ? "Збереження…"
+              : currentIndex < flat.length - 1
               ? "Наступне питання"
               : "Завершити"}
           </button>
         </div>
 
         <div className="progress">
-          {currentQuestion + 1} з {quizQuestions.length}
+          {currentIndex + 1} з {flat.length}
         </div>
       </div>
     </div>
