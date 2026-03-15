@@ -20,6 +20,7 @@ model Skill {
 
   userSkills UserSkill[]
   repos      Repo[]
+  questions  Question[]
 }
 
 model Repo {
@@ -29,6 +30,23 @@ model Repo {
   level   String // "junior" | "middle"
   skillId String
   skill   Skill  @relation(fields: [skillId], references: [id])
+}
+
+model Question {
+  id       String           @id @default(cuid())
+  text     String
+  order    Int              // порядок показу
+  skillId  String
+  skill    Skill            @relation(fields: [skillId], references: [id])
+  options  QuestionOption[]
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  label      String
+  score      Int      // 1–5
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
 }
 
 // ─── Юзер + результати ────────────────────────────────────────────────────────
