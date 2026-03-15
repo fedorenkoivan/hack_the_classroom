@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment
+.env
+.env.local
+
+# API
+api/prisma/dev.db
+api/prisma/dev.db-journal
+api/dist/

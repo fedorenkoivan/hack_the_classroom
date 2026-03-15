@@ -1,4 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
+
+/** Генеруємо або беремо з localStorage анонімний sessionId */
+function getSessionId(): string {
+  const key = 'skillgap_session'
+  let id = localStorage.getItem(key)
+  if (!id) {
+    id = `sess_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    localStorage.setItem(key, id)
+  }
+  return id
+}
 
 type Skill = 'js' | 'ts'
 type Level = 'Junior' | 'Middle' | 'Strong Middle'
@@ -109,6 +122,9 @@ export default function App() {
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([])
   const [started, setStarted] = useState(false)
   const [answers, setAnswers] = useState<Record<number, number>>({})
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const savedRef = useRef(false) // guard – save once per quiz completion
 
   const activeQuestions = useMemo(
     () => QUIZ.filter((q) => selectedSkills.includes(q.skill)),
@@ -142,6 +158,35 @@ export default function App() {
     }))
   }, [skillStats])
 
+  // ── Зберігаємо результати в БД коли квіз завершено ────────────────────────
+  useEffect(() => {
+    if (!isQuizComplete || savedRef.current) return
+    savedRef.current = true
+    setSaving(true)
+    setSaveError(null)
+
+    const sessionId = getSessionId()
+    const results = skillStats.map((s) => ({
+      skillSlug: s.skill,
+      score: s.skillPercent,
+      level: s.level,
+    }))
+
+    fetch(`${API_URL}/api/results`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, results }),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      })
+      .catch((err: unknown) => {
+        console.error('Failed to save results:', err)
+        setSaveError('Не вдалось зберегти результати на сервері')
+      })
+      .finally(() => setSaving(false))
+  }, [isQuizComplete, skillStats])
+
   const toggleSkill = (skill: Skill) => {
     setSelectedSkills((prev) =>
       prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
@@ -152,6 +197,9 @@ export default function App() {
     setStarted(false)
     setAnswers({})
     setSelectedSkills([])
+    setSaving(false)
+    setSaveError(null)
+    savedRef.current = false
   }
 
   return (
@@ -256,7 +304,18 @@ export default function App() {
 
         {started && isQuizComplete && (
           <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg md:p-8">
-            <h2 className="text-xl font-bold md:text-2xl">3) Результат і roadmap</h2>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl font-bold md:text-2xl">3) Результат і roadmap</h2>
+              {saving && (
+                <span className="text-xs text-slate-400 animate-pulse">Зберігаємо…</span>
+              )}
+              {!saving && !saveError && isQuizComplete && (
+                <span className="text-xs text-green-600">✓ Збережено в БД</span>
+              )}
+              {saveError && (
+                <span className="text-xs text-red-500">{saveError}</span>
+              )}
+            </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-3">
               <div className="rounded-2xl bg-slate-900 p-4 text-white">

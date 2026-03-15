@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Довідники ────────────────────────────────────────────────────────────────
+
+model Skill {
+  id        String   @id @default(cuid())
+  slug      String   @unique // "js" | "ts"
+  label     String            // "JavaScript" | "TypeScript"
+  createdAt DateTime @default(now())
+
+  userSkills UserSkill[]
+  repos      Repo[]
+}
+
+model Repo {
+  id      String @id @default(cuid())
+  name    String
+  url     String
+  level   String // "junior" | "middle"
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id])
+}
+
+// ─── Юзер + результати ────────────────────────────────────────────────────────
+
+model User {
+  id         String      @id @default(cuid())
+  sessionId  String      @unique // анонімна сесія з браузера
+  createdAt  DateTime    @default(now())
+
+  userSkills UserSkill[]
+}
+
+model UserSkill {
+  id        String   @id @default(cuid())
+  userId    String
+  skillId   String
+  score     Int      // 0-100 (%)
+  level     String   // "Junior" | "Middle" | "Strong Middle"
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  skill Skill @relation(fields: [skillId], references: [id])
+
+  @@unique([userId, skillId])
+}
