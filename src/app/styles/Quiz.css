@@ -117,6 +117,60 @@
   font-size: 0.875rem;
 }
 
+/* ─── Role badge ─────────────────────────────────────────────────────────────── */
+
+.quiz-role-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 1rem;
+  border-radius: 2rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Skill progress bar ─────────────────────────────────────────────────────── */
+
+.skill-progress-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.skill-progress-segment {
+  flex: 1;
+  min-width: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.skill-progress-label {
+  font-size: 0.65rem;
+  color: #6b7280;
+  text-align: center;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.skill-progress-track {
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.skill-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
 @media (max-width: 640px) {
   .question-card {
     padding: 2rem 1.5rem;
