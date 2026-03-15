@@ -3,10 +3,12 @@ import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Responsi
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import "../styles/Results.css";
+import type { SavedSkill } from "../api";
 
 interface SkillData {
   skill: string;
   level: number;
+  levelLabel: string;
   repos: { name: string; url: string }[];
 }
 
@@ -133,23 +135,59 @@ const githubRepos: { [key: string]: { name: string; url: string }[] } = {
   ],
 };
 
+// ─── level helpers ────────────────────────────────────────────────────────────
+
+function levelLabel(level: string): string {
+  if (level === "Junior") return "Початковий рівень";
+  if (level === "Middle") return "Середній рівень";
+  return "Просунутий рівень";
+}
+
+function levelValue(level: string): number {
+  if (level === "Junior") return 2;
+  if (level === "Middle") return 3;
+  return 5;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function Results() {
   const location = useLocation();
-  const { skills = [], answers = [], questions = [] } = location.state || {};
 
-  // Обчислити рівень для кожної навички (на основі правильних відповідей)
-  const calculateLevel = (index: number): number => {
-    if (!answers.length || !questions.length) return 3;
-    const correctAnswers = answers.filter((answer, i) => answer === questions[i]?.correctAnswer).length;
-    const percentage = (correctAnswers / questions.length) * 100;
-    return Math.round((percentage / 100) * 5);
+  /**
+   * apiSkills — масив SavedSkill з бекенду (є коли submit пройшов успішно)
+   * fallbackResults — масив {skillSlug, score, level} коли бек недоступний
+   * skillLabels — лейбли навичок з Home (для fallback відображення)
+   */
+  const {
+    apiSkills,
+    fallbackResults,
+    skillLabels = [],
+  } = (location.state ?? {}) as {
+    apiSkills?: SavedSkill[];
+    fallbackResults?: { skillSlug: string; score: number; level: string }[];
+    skillLabels?: string[];
   };
 
-  const skillsData: SkillData[] = skills.map((skill: string, index: number) => ({
-    skill,
-    level: calculateLevel(index),
-    repos: githubRepos[skill] || [],
-  }));
+  let skillsData: SkillData[] = [];
+
+  if (apiSkills && apiSkills.length > 0) {
+    // ── Дані з бекенду ──────────────────────────────────────────────────────
+    skillsData = apiSkills.map((s) => ({
+      skill: s.label,
+      level: levelValue(s.level),
+      levelLabel: levelLabel(s.level),
+      repos: s.repos,
+    }));
+  } else if (fallbackResults && fallbackResults.length > 0) {
+    // ── Fallback: бек недоступний, показуємо хардкод-репки ─────────────────
+    skillsData = fallbackResults.map((r) => ({
+      skill: skillLabels.find((l) => l.toLowerCase().replace(/[^a-z]/g, "") === r.skillSlug) ?? r.skillSlug,
+      level: levelValue(r.level),
+      levelLabel: levelLabel(r.level),
+      repos: githubRepos[r.skillSlug] ?? [],
+    }));
+  }
 
   // Дані для радарної діаграми
   const radarData = skillsData.map((item) => ({
@@ -201,14 +239,6 @@ export default function Results() {
 function SkillRoadmap({ data }: { data: SkillData }) {
   const [expanded, setExpanded] = useState(false);
 
-  const levelText = (level: number) => {
-    if (level <= 1) return "Початковий рівень";
-    if (level <= 2) return "Базовий рівень";
-    if (level <= 3) return "Середній рівень";
-    if (level <= 4) return "Просунутий рівень";
-    return "Експертний рівень";
-  };
-
   const visibleRepos = expanded ? data.repos : data.repos.slice(0, 3);
 
   return (
@@ -217,7 +247,7 @@ function SkillRoadmap({ data }: { data: SkillData }) {
         <div className="skill-dot"></div>
         <div className="skill-info">
           <h3 className="skill-name">{data.skill}</h3>
-          <p className="skill-level">{levelText(data.level)}</p>
+          <p className="skill-level">{data.levelLabel}</p>
         </div>
       </div>
 

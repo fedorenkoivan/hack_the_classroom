@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,52 +7,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Довідники ────────────────────────────────────────────────────────────────
-
 model Skill {
-  id        String   @id @default(cuid())
-  slug      String   @unique // "js" | "ts"
-  label     String            // "JavaScript" | "TypeScript"
-  createdAt DateTime @default(now())
-
-  userSkills UserSkill[]
-  repos      Repo[]
+  id         String      @id @default(cuid())
+  slug       String      @unique
+  label      String
+  createdAt  DateTime    @default(now())
   questions  Question[]
+  repos      Repo[]
+  userSkills UserSkill[]
 }
 
 model Repo {
   id      String @id @default(cuid())
   name    String
   url     String
-  level   String // "junior" | "middle"
+  level   String
   skillId String
   skill   Skill  @relation(fields: [skillId], references: [id])
 }
 
 model Question {
-  id       String           @id @default(cuid())
-  text     String
-  order    Int              // порядок показу
-  skillId  String
-  skill    Skill            @relation(fields: [skillId], references: [id])
-  options  QuestionOption[]
+  id      String           @id @default(cuid())
+  text    String
+  order   Int
+  skillId String
+  skill   Skill            @relation(fields: [skillId], references: [id])
+  options QuestionOption[]
 }
 
 model QuestionOption {
   id         String   @id @default(cuid())
   label      String
-  score      Int      // 1–5
+  score      Int
   questionId String
   question   Question @relation(fields: [questionId], references: [id])
 }
 
-// ─── Юзер + результати ────────────────────────────────────────────────────────
-
 model User {
   id         String      @id @default(cuid())
-  sessionId  String      @unique // анонімна сесія з браузера
+  sessionId  String      @unique
   createdAt  DateTime    @default(now())
-
   userSkills UserSkill[]
 }
 
@@ -63,12 +54,11 @@ model UserSkill {
   id        String   @id @default(cuid())
   userId    String
   skillId   String
-  score     Int      // 0-100 (%)
-  level     String   // "Junior" | "Middle" | "Strong Middle"
+  score     Int
+  level     String
   createdAt DateTime @default(now())
-
-  user  User  @relation(fields: [userId], references: [id])
-  skill Skill @relation(fields: [skillId], references: [id])
+  skill     Skill    @relation(fields: [skillId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, skillId])
 }

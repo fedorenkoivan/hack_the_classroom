@@ -508,55 +508,246 @@ const TS_MIDDLE_REPOS = [
   { name: 'drizzle-orm', url: 'https://github.com/drizzle-team/drizzle-orm' },
 ]
 
+// ─── Repos for other skills ───────────────────────────────────────────────────
+
+const REACT_JUNIOR_REPOS = [
+  { name: 'react', url: 'https://github.com/facebook/react' },
+  { name: 'react-use', url: 'https://github.com/streamich/react-use' },
+  { name: 'awesome-react', url: 'https://github.com/enaqx/awesome-react' },
+  { name: 'react-patterns', url: 'https://github.com/chantastic/reactpatterns.com' },
+  { name: 'react-router', url: 'https://github.com/remix-run/react-router' },
+  { name: 'react-hook-form', url: 'https://github.com/react-hook-form/react-hook-form' },
+  { name: 'react-query', url: 'https://github.com/TanStack/query' },
+  { name: 'zustand', url: 'https://github.com/pmndrs/zustand' },
+  { name: 'shadcn-ui', url: 'https://github.com/shadcn-ui/ui' },
+  { name: 'radix-ui', url: 'https://github.com/radix-ui/primitives' },
+]
+const REACT_MIDDLE_REPOS = [
+  ...REACT_JUNIOR_REPOS,
+  { name: 'next.js', url: 'https://github.com/vercel/next.js' },
+  { name: 'remix', url: 'https://github.com/remix-run/remix' },
+  { name: 'jotai', url: 'https://github.com/pmndrs/jotai' },
+  { name: 'recoil', url: 'https://github.com/facebookexperimental/Recoil' },
+  { name: 'react-redux', url: 'https://github.com/reduxjs/react-redux' },
+  { name: 'react-spring', url: 'https://github.com/pmndrs/react-spring' },
+  { name: 'framer-motion', url: 'https://github.com/framer/motion' },
+  { name: 'storybook', url: 'https://github.com/storybookjs/storybook' },
+  { name: 'testing-library', url: 'https://github.com/testing-library/react-testing-library' },
+  { name: 'swr', url: 'https://github.com/vercel/swr' },
+]
+
+const NODEJS_JUNIOR_REPOS = [
+  { name: 'node', url: 'https://github.com/nodejs/node' },
+  { name: 'express', url: 'https://github.com/expressjs/express' },
+  { name: 'awesome-nodejs', url: 'https://github.com/sindresorhus/awesome-nodejs' },
+  { name: 'nodebestpractices', url: 'https://github.com/goldbergyoni/nodebestpractices' },
+  { name: 'fastify', url: 'https://github.com/fastify/fastify' },
+  { name: 'dotenv', url: 'https://github.com/motdotla/dotenv' },
+  { name: 'nodemon', url: 'https://github.com/remy/nodemon' },
+  { name: 'node-postgres', url: 'https://github.com/brianc/node-postgres' },
+  { name: 'axios', url: 'https://github.com/axios/axios' },
+  { name: 'joi', url: 'https://github.com/hapijs/joi' },
+]
+const NODEJS_MIDDLE_REPOS = [
+  ...NODEJS_JUNIOR_REPOS,
+  { name: 'nestjs', url: 'https://github.com/nestjs/nest' },
+  { name: 'prisma', url: 'https://github.com/prisma/prisma' },
+  { name: 'socket.io', url: 'https://github.com/socketio/socket.io' },
+  { name: 'pm2', url: 'https://github.com/Unitech/pm2' },
+  { name: 'bull', url: 'https://github.com/OptimalBits/bull' },
+  { name: 'passport', url: 'https://github.com/jaredhanson/passport' },
+  { name: 'helmet', url: 'https://github.com/helmetjs/helmet' },
+  { name: 'winston', url: 'https://github.com/winstonjs/winston' },
+  { name: 'typeorm', url: 'https://github.com/typeorm/typeorm' },
+  { name: 'grpc-node', url: 'https://github.com/grpc/grpc-node' },
+]
+
+const PYTHON_JUNIOR_REPOS = [
+  { name: 'python-guide', url: 'https://github.com/realpython/python-guide' },
+  { name: 'awesome-python', url: 'https://github.com/vinta/awesome-python' },
+  { name: 'flask', url: 'https://github.com/pallets/flask' },
+  { name: 'fastapi', url: 'https://github.com/tiangolo/fastapi' },
+  { name: 'requests', url: 'https://github.com/psf/requests' },
+  { name: 'pydantic', url: 'https://github.com/pydantic/pydantic' },
+  { name: 'python-patterns', url: 'https://github.com/faif/python-patterns' },
+  { name: 'learn-python3', url: 'https://github.com/jerry-git/learn-python3' },
+  { name: 'wtfpython', url: 'https://github.com/satwikkansal/wtfpython' },
+  { name: 'algorithms', url: 'https://github.com/TheAlgorithms/Python' },
+]
+const PYTHON_MIDDLE_REPOS = [
+  ...PYTHON_JUNIOR_REPOS,
+  { name: 'django', url: 'https://github.com/django/django' },
+  { name: 'pandas', url: 'https://github.com/pandas-dev/pandas' },
+  { name: 'numpy', url: 'https://github.com/numpy/numpy' },
+  { name: 'scikit-learn', url: 'https://github.com/scikit-learn/scikit-learn' },
+  { name: 'sqlalchemy', url: 'https://github.com/sqlalchemy/sqlalchemy' },
+  { name: 'celery', url: 'https://github.com/celery/celery' },
+  { name: 'pytest', url: 'https://github.com/pytest-dev/pytest' },
+  { name: 'httpx', url: 'https://github.com/encode/httpx' },
+  { name: 'poetry', url: 'https://github.com/python-poetry/poetry' },
+  { name: 'mypy', url: 'https://github.com/python/mypy' },
+]
+
+const GIT_JUNIOR_REPOS = [
+  { name: 'learn-git-branching', url: 'https://github.com/pcottle/learnGitBranching' },
+  { name: 'git-tips', url: 'https://github.com/git-tips/tips' },
+  { name: 'git-flight-rules', url: 'https://github.com/k88hudson/git-flight-rules' },
+  { name: 'gitignore', url: 'https://github.com/github/gitignore' },
+  { name: 'git-cheat-sheet', url: 'https://github.com/arslanbilal/git-cheat-sheet' },
+  { name: 'awesome-git', url: 'https://github.com/dictcp/awesome-git' },
+  { name: 'git-extras', url: 'https://github.com/tj/git-extras' },
+  { name: 'husky', url: 'https://github.com/typicode/husky' },
+  { name: 'conventional-commits', url: 'https://github.com/conventional-commits/conventionalcommits.org' },
+  { name: 'commitlint', url: 'https://github.com/conventional-changelog/commitlint' },
+]
+const GIT_MIDDLE_REPOS = [
+  ...GIT_JUNIOR_REPOS,
+  { name: 'git', url: 'https://github.com/git/git' },
+  { name: 'semantic-release', url: 'https://github.com/semantic-release/semantic-release' },
+  { name: 'release-it', url: 'https://github.com/release-it/release-it' },
+  { name: 'lint-staged', url: 'https://github.com/okonet/lint-staged' },
+  { name: 'commitizen', url: 'https://github.com/commitizen/cz-cli' },
+  { name: 'github-actions', url: 'https://github.com/actions/toolkit' },
+  { name: 'act', url: 'https://github.com/nektos/act' },
+  { name: 'pre-commit', url: 'https://github.com/pre-commit/pre-commit' },
+  { name: 'gh-cli', url: 'https://github.com/cli/cli' },
+  { name: 'gitui', url: 'https://github.com/extrawurst/gitui' },
+]
+
+const SQL_JUNIOR_REPOS = [
+  { name: 'awesome-sql', url: 'https://github.com/danhuss/awesome-sql' },
+  { name: 'sql-masterclass', url: 'https://github.com/DataWithDanny/sql-masterclass' },
+  { name: 'sequelize', url: 'https://github.com/sequelize/sequelize' },
+  { name: 'typeorm', url: 'https://github.com/typeorm/typeorm' },
+  { name: 'knex', url: 'https://github.com/knex/knex' },
+  { name: 'prisma', url: 'https://github.com/prisma/prisma' },
+  { name: 'sql-style-guide', url: 'https://github.com/mattm/sql-style-guide' },
+  { name: 'postgresql', url: 'https://github.com/postgres/postgres' },
+  { name: 'drizzle-orm', url: 'https://github.com/drizzle-team/drizzle-orm' },
+  { name: 'kysely', url: 'https://github.com/kysely-org/kysely' },
+]
+const SQL_MIDDLE_REPOS = [
+  ...SQL_JUNIOR_REPOS,
+  { name: 'pgvector', url: 'https://github.com/pgvector/pgvector' },
+  { name: 'supabase', url: 'https://github.com/supabase/supabase' },
+  { name: 'explain-analyze', url: 'https://github.com/nicowillis/explain-analyze' },
+  { name: 'pgbadger', url: 'https://github.com/darold/pgbadger' },
+  { name: 'flyway', url: 'https://github.com/flyway/flyway' },
+  { name: 'liquibase', url: 'https://github.com/liquibase/liquibase' },
+  { name: 'dbt', url: 'https://github.com/dbt-labs/dbt-core' },
+  { name: 'sqlfluff', url: 'https://github.com/sqlfluff/sqlfluff' },
+  { name: 'pgpool2', url: 'https://github.com/pgpool/pgpool2' },
+  { name: 'timescaledb', url: 'https://github.com/timescale/timescaledb' },
+]
+
+const CSS_JUNIOR_REPOS = [
+  { name: 'css-protips', url: 'https://github.com/AllThingsSmitty/css-protips' },
+  { name: 'awesome-css', url: 'https://github.com/awesome-css-group/awesome-css' },
+  { name: 'tailwindcss', url: 'https://github.com/tailwindlabs/tailwindcss' },
+  { name: 'normalize.css', url: 'https://github.com/necolas/normalize.css' },
+  { name: 'animate.css', url: 'https://github.com/animate-css/animate.css' },
+  { name: 'flexbox-guide', url: 'https://github.com/samanthaming/Flexbox30' },
+  { name: 'css-reference', url: 'https://github.com/jgthms/css-reference' },
+  { name: 'html5-boilerplate', url: 'https://github.com/h5bp/html5-boilerplate' },
+  { name: 'bootstrap', url: 'https://github.com/twbs/bootstrap' },
+  { name: 'css-grid-guide', url: 'https://github.com/valentinogagliardi/Little-JavaScript-Book' },
+]
+const CSS_MIDDLE_REPOS = [
+  ...CSS_JUNIOR_REPOS,
+  { name: 'styled-components', url: 'https://github.com/styled-components/styled-components' },
+  { name: 'sass', url: 'https://github.com/sass/sass' },
+  { name: 'postcss', url: 'https://github.com/postcss/postcss' },
+  { name: 'open-props', url: 'https://github.com/argyleink/open-props' },
+  { name: 'panda-css', url: 'https://github.com/chakra-ui/panda' },
+  { name: 'unocss', url: 'https://github.com/unocss/unocss' },
+  { name: 'stitches', url: 'https://github.com/stitchesjs/stitches' },
+  { name: 'vanilla-extract', url: 'https://github.com/vanilla-extract-css/vanilla-extract' },
+  { name: 'motion', url: 'https://github.com/motiondivision/motion' },
+  { name: 'gsap', url: 'https://github.com/greensock/GSAP' },
+]
+
+const DOCKER_JUNIOR_REPOS = [
+  { name: 'awesome-docker', url: 'https://github.com/veggiemonk/awesome-docker' },
+  { name: 'dockerfiles', url: 'https://github.com/jessfraz/dockerfiles' },
+  { name: 'docker-curriculum', url: 'https://github.com/prakhar1989/docker-curriculum' },
+  { name: 'docker-compose-examples', url: 'https://github.com/docker/awesome-compose' },
+  { name: 'dive', url: 'https://github.com/wagoodman/dive' },
+  { name: 'hadolint', url: 'https://github.com/hadolint/hadolint' },
+  { name: 'ctop', url: 'https://github.com/bcicen/ctop' },
+  { name: 'lazydocker', url: 'https://github.com/jesseduffield/lazydocker' },
+  { name: 'watchtower', url: 'https://github.com/containrrr/watchtower' },
+  { name: 'portainer', url: 'https://github.com/portainer/portainer' },
+]
+const DOCKER_MIDDLE_REPOS = [
+  ...DOCKER_JUNIOR_REPOS,
+  { name: 'kubernetes', url: 'https://github.com/kubernetes/kubernetes' },
+  { name: 'helm', url: 'https://github.com/helm/helm' },
+  { name: 'traefik', url: 'https://github.com/traefik/traefik' },
+  { name: 'nginx-proxy', url: 'https://github.com/nginx-proxy/nginx-proxy' },
+  { name: 'docker-bench-security', url: 'https://github.com/docker/docker-bench-security' },
+  { name: 'buildkit', url: 'https://github.com/moby/buildkit' },
+  { name: 'skaffold', url: 'https://github.com/GoogleContainerTools/skaffold' },
+  { name: 'kustomize', url: 'https://github.com/kubernetes-sigs/kustomize' },
+  { name: 'podman', url: 'https://github.com/containers/podman' },
+  { name: 'kaniko', url: 'https://github.com/GoogleContainerTools/kaniko' },
+]
+
+const REST_JUNIOR_REPOS = [
+  { name: 'httpie', url: 'https://github.com/httpie/cli' },
+  { name: 'insomnia', url: 'https://github.com/Kong/insomnia' },
+  { name: 'hoppscotch', url: 'https://github.com/hoppscotch/hoppscotch' },
+  { name: 'openapi-generator', url: 'https://github.com/OpenAPITools/openapi-generator' },
+  { name: 'swagger-ui', url: 'https://github.com/swagger-api/swagger-ui' },
+  { name: 'json-server', url: 'https://github.com/typicode/json-server' },
+  { name: 'axios', url: 'https://github.com/axios/axios' },
+  { name: 'ky', url: 'https://github.com/sindresorhus/ky' },
+  { name: 'msw', url: 'https://github.com/mswjs/msw' },
+  { name: 'rest-assured', url: 'https://github.com/rest-assured/rest-assured' },
+]
+const REST_MIDDLE_REPOS = [
+  ...REST_JUNIOR_REPOS,
+  { name: 'fastify', url: 'https://github.com/fastify/fastify' },
+  { name: 'hono', url: 'https://github.com/honojs/hono' },
+  { name: 'zod', url: 'https://github.com/colinhacks/zod' },
+  { name: 'jose', url: 'https://github.com/panva/jose' },
+  { name: 'passport', url: 'https://github.com/jaredhanson/passport' },
+  { name: 'rate-limiter-flexible', url: 'https://github.com/animir/node-rate-limiter-flexible' },
+  { name: 'autocannon', url: 'https://github.com/mcollina/autocannon' },
+  { name: 'supertest', url: 'https://github.com/ladjs/supertest' },
+  { name: 'redoc', url: 'https://github.com/Redocly/redoc' },
+  { name: 'stoplight-studio', url: 'https://github.com/stoplightio/studio' },
+]
+
 // ─── Seed ─────────────────────────────────────────────────────────────────────
+
+// Таблиця: slug → [juniorRepos, middleRepos]
+const REPOS_BY_SKILL: Record<string, [{ name: string; url: string }[], { name: string; url: string }[]]> = {
+  js:     [JS_JUNIOR_REPOS,     JS_MIDDLE_REPOS],
+  ts:     [TS_JUNIOR_REPOS,     TS_MIDDLE_REPOS],
+  react:  [REACT_JUNIOR_REPOS,  REACT_MIDDLE_REPOS],
+  nodejs: [NODEJS_JUNIOR_REPOS, NODEJS_MIDDLE_REPOS],
+  python: [PYTHON_JUNIOR_REPOS, PYTHON_MIDDLE_REPOS],
+  git:    [GIT_JUNIOR_REPOS,    GIT_MIDDLE_REPOS],
+  sql:    [SQL_JUNIOR_REPOS,    SQL_MIDDLE_REPOS],
+  css:    [CSS_JUNIOR_REPOS,    CSS_MIDDLE_REPOS],
+  docker: [DOCKER_JUNIOR_REPOS, DOCKER_MIDDLE_REPOS],
+  rest:   [REST_JUNIOR_REPOS,   REST_MIDDLE_REPOS],
+}
 
 async function main() {
   console.log('🌱  Seeding database...')
 
-  // ── Скіли + репо (js, ts) ──────────────────────────────────────────────────
-  const js = await prisma.skill.upsert({
-    where: { slug: 'js' },
-    update: { label: 'JavaScript' },
-    create: { slug: 'js', label: 'JavaScript' },
-  })
-
-  const ts = await prisma.skill.upsert({
-    where: { slug: 'ts' },
-    update: { label: 'TypeScript' },
-    create: { slug: 'ts', label: 'TypeScript' },
-  })
-
-  // Видаляємо старі репо, щоб не дублювати при повторному seed
-  await prisma.repo.deleteMany({ where: { skillId: { in: [js.id, ts.id] } } })
-
-  await prisma.repo.createMany({
-    data: JS_JUNIOR_REPOS.map((r) => ({ ...r, level: 'junior', skillId: js.id })),
-  })
-  await prisma.repo.createMany({
-    data: JS_MIDDLE_REPOS.map((r) => ({ ...r, level: 'middle', skillId: js.id })),
-  })
-  await prisma.repo.createMany({
-    data: TS_JUNIOR_REPOS.map((r) => ({ ...r, level: 'junior', skillId: ts.id })),
-  })
-  await prisma.repo.createMany({
-    data: TS_MIDDLE_REPOS.map((r) => ({ ...r, level: 'middle', skillId: ts.id })),
-  })
-
-  console.log(`✅  Repos JS  → junior: ${JS_JUNIOR_REPOS.length}, middle: ${JS_MIDDLE_REPOS.length}`)
-  console.log(`✅  Repos TS  → junior: ${TS_JUNIOR_REPOS.length}, middle: ${TS_MIDDLE_REPOS.length}`)
-
-  // ── Квізи ─────────────────────────────────────────────────────────────────
+  // ── Квізи + скіли ─────────────────────────────────────────────────────────
   console.log('\n📝  Seeding quizzes...')
 
   for (const quiz of QUIZZES) {
-    // upsert скіл (js і ts вже є, решта створюються)
     const skill = await prisma.skill.upsert({
       where: { slug: quiz.skillSlug },
       update: { label: quiz.skillLabel },
       create: { slug: quiz.skillSlug, label: quiz.skillLabel },
     })
 
-    // Видаляємо старі питання цього скіла щоб не дублювати
+    // Видаляємо старі питання щоб не дублювати
     const oldQuestions = await prisma.question.findMany({
       where: { skillId: skill.id },
       select: { id: true },
@@ -568,22 +759,41 @@ async function main() {
       await prisma.question.deleteMany({ where: { skillId: skill.id } })
     }
 
-    // Створюємо питання з варіантами
     for (const q of quiz.questions) {
       await prisma.question.create({
         data: {
           text: q.text,
           order: q.order,
           skillId: skill.id,
-          options: {
-            create: q.options,
-          },
+          options: { create: q.options },
         },
       })
     }
 
     const count = await prisma.question.count({ where: { skillId: skill.id } })
     console.log(`  ✅  ${quiz.skillLabel.padEnd(12)} → ${count} питань`)
+  }
+
+  // ── Репозиторії ────────────────────────────────────────────────────────────
+  console.log('\n📦  Seeding repos...')
+
+  for (const [slug, [juniorRepos, middleRepos]] of Object.entries(REPOS_BY_SKILL)) {
+    const skill = await prisma.skill.findUnique({ where: { slug } })
+    if (!skill) {
+      console.warn(`  ⚠️  Skill "${slug}" not found, skipping repos`)
+      continue
+    }
+
+    await prisma.repo.deleteMany({ where: { skillId: skill.id } })
+
+    await prisma.repo.createMany({
+      data: juniorRepos.map((r) => ({ ...r, level: 'junior', skillId: skill.id })),
+    })
+    await prisma.repo.createMany({
+      data: middleRepos.map((r) => ({ ...r, level: 'middle', skillId: skill.id })),
+    })
+
+    console.log(`  ✅  ${slug.padEnd(10)} → junior: ${juniorRepos.length}, middle: ${middleRepos.length}`)
   }
 
   console.log('\n🎉  Seed completed!')
