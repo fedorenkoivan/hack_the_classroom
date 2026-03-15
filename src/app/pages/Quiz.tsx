@@ -222,7 +222,7 @@ export default function Quiz() {
                 className={`option-button ${chosen === option.id ? "selected" : ""}`}
                 onClick={() => handleSelect(option.id)}
               >
-                {option.text}
+                {option.label}
               </button>
             ))}
           </div>
