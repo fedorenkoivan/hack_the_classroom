@@ -26,8 +26,11 @@ dist-ssr
 # Environment
 .env
 .env.local
+!.env.example
+!api/.env.example
 
 # API
+api/.env
 api/prisma/dev.db
 api/prisma/dev.db-journal
 api/dist/

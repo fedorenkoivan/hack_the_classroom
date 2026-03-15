@@ -1,12 +1,13 @@
 import 'dotenv/config'
-import path from 'path'
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
+import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
 
-const dbUrl =
-  process.env.DATABASE_URL ?? `file:${path.join(__dirname, '../../prisma/dev.db')}`
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is not set')
+}
 
-const adapter = new PrismaBetterSqlite3({ url: dbUrl })
+// Pass the connection string directly — PrismaPg creates its own pool
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 
 // Singleton pattern – one shared instance
 const prisma = new PrismaClient({
