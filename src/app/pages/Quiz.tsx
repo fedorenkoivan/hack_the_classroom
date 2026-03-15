@@ -6,7 +6,6 @@ import type { QuizSkill, QuizQuestion, QuizOption } from "../api";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Унікальний ID сесії браузера — зберігаємо в sessionStorage */
 function getSessionId(): string {
   let id = sessionStorage.getItem("sessionId");
   if (!id) {
@@ -15,23 +14,6 @@ function getSessionId(): string {
   }
   return id;
 }
-
-/**
- * Skill slug mapping: лейбли з Home → slug у БД
- * (Home передає лейбли типу "JavaScript", бек очікує "js")
- */
-const LABEL_TO_SLUG: Record<string, string> = {
-  JavaScript: "js",
-  TypeScript: "ts",
-  React: "react",
-  "Node.js": "nodejs",
-  Python: "python",
-  Java: "java",
-  "C++": "cpp",
-  "HTML/CSS": "htmlcss",
-  SQL: "sql",
-  Git: "git",
-};
 
 // ─── Flat list of questions from all skills ───────────────────────────────────
 
@@ -55,7 +37,7 @@ function flattenQuestions(skills: QuizSkill[]): FlatQuestion[] {
 
 function calcSkillResults(
   flat: FlatQuestion[],
-  selectedOptions: Record<number, string> // index → optionId
+  selectedOptions: Record<number, string>
 ): { skillSlug: string; score: number; level: string }[] {
   const bySkill: Record<string, { total: number; sum: number }> = {};
 
@@ -79,14 +61,22 @@ function calcSkillResults(
   });
 }
 
+/** Зважений середній score по всіх скілах ролі */
+function calcRoleScore(results: { score: number }[]): number {
+  if (results.length === 0) return 0;
+  return Math.round(results.reduce((sum, r) => sum + r.score, 0) / results.length);
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Quiz() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // skills — масив лейблів з Home ("JavaScript", "React", …)
-  const selectedLabels: string[] = location.state?.skills ?? [];
+  // Тепер з Home приходять: roleId, roleLabel, skillSlugs[]
+  const roleId: string = location.state?.roleId ?? "";
+  const roleLabel: string = location.state?.roleLabel ?? "Роль";
+  const skillSlugs: string[] = location.state?.skillSlugs ?? [];
 
   const [flat, setFlat] = useState<FlatQuestion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,17 +88,11 @@ export default function Quiz() {
 
   // ── Load questions from API ──────────────────────────────────────────────
   useEffect(() => {
-    const slugs = selectedLabels
-      .map((l) => LABEL_TO_SLUG[l])
-      .filter(Boolean);
-
-    fetchQuiz(slugs.length > 0 ? slugs : undefined)
+    fetchQuiz(skillSlugs.length > 0 ? skillSlugs : undefined)
       .then((skills) => {
-        // Якщо немає slugs у БД — зберігаємо всі скіли
-        const filtered =
-          slugs.length > 0
-            ? skills.filter((s) => slugs.includes(s.slug))
-            : skills;
+        const filtered = skillSlugs.length > 0
+          ? skills.filter((s) => skillSlugs.includes(s.slug))
+          : skills;
         setFlat(flattenQuestions(filtered));
         setLoading(false);
       })
@@ -134,18 +118,28 @@ export default function Quiz() {
     // ── Last question → submit ─────────────────────────────────────────────
     setSubmitting(true);
     try {
-      const results = calcSkillResults(flat, selectedOptions);
+      const skillResults = calcSkillResults(flat, selectedOptions);
+      const roleScore = calcRoleScore(skillResults);
       const sessionId = getSessionId();
-      const response = await submitResults(sessionId, results);
+      const response = await submitResults(sessionId, skillResults);
 
-      navigate("/results", { state: { apiSkills: response.skills } });
-    } catch {
-      // Якщо бекенд недоступний — переходимо без даних з API
-      const results = calcSkillResults(flat, selectedOptions);
       navigate("/results", {
         state: {
-          fallbackResults: results,
-          skillLabels: selectedLabels,
+          apiSkills: response.skills,
+          roleId,
+          roleLabel,
+          roleScore,
+        },
+      });
+    } catch {
+      const skillResults = calcSkillResults(flat, selectedOptions);
+      const roleScore = calcRoleScore(skillResults);
+      navigate("/results", {
+        state: {
+          fallbackResults: skillResults,
+          roleId,
+          roleLabel,
+          roleScore,
         },
       });
     } finally {
@@ -173,7 +167,7 @@ export default function Quiz() {
         <header className="header">SkillRoad</header>
         <div className="quiz-content">
           <p style={{ textAlign: "center", marginTop: "2rem", color: "red" }}>
-            {error ?? "Питань не знайдено для вибраних навичок."}
+            {error ?? "Питань не знайдено для цієї ролі."}
           </p>
         </div>
       </div>
@@ -183,14 +177,40 @@ export default function Quiz() {
   const { question, skillLabel } = flat[currentIndex];
   const chosen = selectedOptions[currentIndex];
 
+  // Прогрес по скілах
+  const skillProgress = skillSlugs.map((slug) => {
+    const questions = flat.filter((f) => f.skillSlug === slug);
+    const answered = questions.filter((_, i) => {
+      const globalIdx = flat.indexOf(questions[i] ?? questions[0]);
+      return selectedOptions[globalIdx] !== undefined;
+    }).length;
+    return { slug, total: questions.length, answered };
+  });
+
   return (
     <div className="quiz-container">
       <header className="header">SkillRoad</header>
 
       <div className="quiz-content">
+        <div className="quiz-role-badge">{roleLabel}</div>
+
         <h2 className="question-title">
-          {skillLabel} — Питання {currentIndex + 1}
+          {skillLabel} — {currentIndex + 1} / {flat.length}
         </h2>
+
+        <div className="skill-progress-bar">
+          {skillProgress.map((sp) => (
+            <div key={sp.slug} className="skill-progress-segment" title={sp.slug}>
+              <span className="skill-progress-label">{sp.slug}</span>
+              <div className="skill-progress-track">
+                <div
+                  className="skill-progress-fill"
+                  style={{ width: `${sp.total > 0 ? (sp.answered / sp.total) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
 
         <div className="question-card">
           <h3 className="question-text">{question.text}</h3>
@@ -202,7 +222,7 @@ export default function Quiz() {
                 className={`option-button ${chosen === option.id ? "selected" : ""}`}
                 onClick={() => handleSelect(option.id)}
               >
-                {option.text}
+                {option.label}
               </button>
             ))}
           </div>
@@ -216,7 +236,7 @@ export default function Quiz() {
               ? "Збереження…"
               : currentIndex < flat.length - 1
               ? "Наступне питання"
-              : "Завершити"}
+              : "Завершити квіз"}
           </button>
         </div>
 

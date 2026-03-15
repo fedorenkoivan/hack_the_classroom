@@ -149,30 +149,32 @@ function levelValue(level: string): number {
   return 5;
 }
 
+function roleLevel(score: number): { label: string; color: string } {
+  if (score >= 70) return { label: "Strong Middle", color: "#8b5cf6" };
+  if (score >= 40) return { label: "Middle", color: "#3b82f6" };
+  return { label: "Junior", color: "#10b981" };
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Results() {
   const location = useLocation();
 
-  /**
-   * apiSkills — масив SavedSkill з бекенду (є коли submit пройшов успішно)
-   * fallbackResults — масив {skillSlug, score, level} коли бек недоступний
-   * skillLabels — лейбли навичок з Home (для fallback відображення)
-   */
   const {
     apiSkills,
     fallbackResults,
-    skillLabels = [],
+    roleLabel = "Роль",
+    roleScore,
   } = (location.state ?? {}) as {
     apiSkills?: SavedSkill[];
     fallbackResults?: { skillSlug: string; score: number; level: string }[];
-    skillLabels?: string[];
+    roleLabel?: string;
+    roleScore?: number;
   };
 
   let skillsData: SkillData[] = [];
 
   if (apiSkills && apiSkills.length > 0) {
-    // ── Дані з бекенду ──────────────────────────────────────────────────────
     skillsData = apiSkills.map((s) => ({
       skill: s.label,
       level: levelValue(s.level),
@@ -180,14 +182,20 @@ export default function Results() {
       repos: s.repos,
     }));
   } else if (fallbackResults && fallbackResults.length > 0) {
-    // ── Fallback: бек недоступний, показуємо хардкод-репки ─────────────────
     skillsData = fallbackResults.map((r) => ({
-      skill: skillLabels.find((l) => l.toLowerCase().replace(/[^a-z]/g, "") === r.skillSlug) ?? r.skillSlug,
+      skill: r.skillSlug,
       level: levelValue(r.level),
       levelLabel: levelLabel(r.level),
       repos: githubRepos[r.skillSlug] ?? [],
     }));
   }
+
+  // Загальний score по ролі
+  const computedRoleScore = roleScore ??
+    (skillsData.length > 0
+      ? Math.round(skillsData.reduce((sum, s) => sum + (s.level / 5) * 100, 0) / skillsData.length)
+      : 0);
+  const roleLvl = roleLevel(computedRoleScore);
 
   // Дані для радарної діаграми
   const radarData = skillsData.map((item) => ({
@@ -200,7 +208,26 @@ export default function Results() {
       <header className="header">SkillRoad</header>
 
       <div className="results-content">
-        <h1 className="results-title">Аналіз ваших навичок</h1>
+        {/* ── Role score banner ── */}
+        <div className="role-result-banner">
+          <div className="role-result-label">{roleLabel}</div>
+          <div className="role-result-score-row">
+            <div
+              className="role-result-circle"
+              style={{ borderColor: roleLvl.color }}
+            >
+              <span className="role-result-percent">{computedRoleScore}%</span>
+            </div>
+            <div className="role-result-meta">
+              <span className="role-result-level" style={{ color: roleLvl.color }}>
+                {roleLvl.label}
+              </span>
+              <span className="role-result-hint">загальна готовність до ролі</span>
+            </div>
+          </div>
+        </div>
+
+        <h1 className="results-title">Деталі по навичках</h1>
 
         <div className="radar-section">
           <ResponsiveContainer width="100%" height={400}>

@@ -1,37 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Search } from "lucide-react";
 import "../styles/Home.css";
-
-const skills = [
-  "JavaScript",
-  "TypeScript",
-  "React",
-  "Node.js",
-  "Python",
-  "Java",
-  "C++",
-  "HTML/CSS",
-  "SQL",
-  "Git",
-];
+import { ROLES } from "../data/skillsData";
+import type { Role } from "../data/skillsData";
 
 export default function Home() {
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const navigate = useNavigate();
 
-  const handleSkillToggle = (skill: string) => {
-    setSelectedSkills((prev) =>
-      prev.includes(skill)
-        ? prev.filter((s) => s !== skill)
-        : [...prev, skill]
-    );
-  };
-
   const handleStart = () => {
-    if (selectedSkills.length > 0) {
-      navigate("/quiz", { state: { skills: selectedSkills } });
+    if (selectedRole) {
+      navigate("/quiz", {
+        state: {
+          roleId: selectedRole.id,
+          roleLabel: selectedRole.label,
+          skillSlugs: selectedRole.skillSlugs,
+        },
+      });
     }
   };
 
@@ -46,51 +31,35 @@ export default function Home() {
           Отримай роботу мрії.
         </h1>
         <p className="subtitle">
-          Не вчи зайвого. Знай, що насправді шукає ринок
+          Обери свою інженерну роль — отримай персональний roadmap
         </p>
 
-        <div className="input-container">
-          <div className="select-wrapper">
-            <div className="select-trigger" onClick={() => setIsOpen(!isOpen)}>
-              <Search className="search-icon" size={20} />
-              <span className={selectedSkills.length === 0 ? "placeholder" : ""}>
-                {selectedSkills.length === 0
-                  ? "Оберіть ваші навички"
-                  : selectedSkills.join(", ")}
+        <div className="roles-grid">
+          {ROLES.map((role) => (
+            <button
+              key={role.id}
+              className={`role-card ${selectedRole?.id === role.id ? "selected" : ""}`}
+              onClick={() => setSelectedRole(role)}
+            >
+              <span className="role-icon">{role.icon}</span>
+              <span className="role-label">{role.label}</span>
+              <span className="role-desc">{role.description}</span>
+              <span className="role-skills">
+                {role.skillSlugs.join(" · ")}
               </span>
-            </div>
-
-            {isOpen && (
-              <div className="select-dropdown">
-                {skills.map((skill) => (
-                  <div
-                    key={skill}
-                    className={`select-item ${
-                      selectedSkills.includes(skill) ? "selected" : ""
-                    }`}
-                    onClick={() => handleSkillToggle(skill)}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedSkills.includes(skill)}
-                      onChange={() => {}}
-                      className="checkbox"
-                    />
-                    {skill}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <button
-            className="analyze-button"
-            onClick={handleStart}
-            disabled={selectedSkills.length === 0}
-          >
-            Аналізувати
-          </button>
+            </button>
+          ))}
         </div>
+
+        <button
+          className="analyze-button"
+          onClick={handleStart}
+          disabled={!selectedRole}
+        >
+          {selectedRole
+            ? `Почати квіз для ${selectedRole.label}`
+            : "Оберіть роль"}
+        </button>
       </div>
     </div>
   );
