@@ -88,3 +88,56 @@ export async function submitResults(
   if (!res.ok) throw new Error('Failed to submit results')
   return res.json() as Promise<SubmitResponse>
 }
+
+// ─── AI ───────────────────────────────────────────────────────────────────────
+
+export interface AIEvaluation {
+  score: number     // 0-10
+  feedback: string
+}
+
+export interface AISummaryPayload {
+  roleLabel: string
+  roleScore: number
+  skillResults: { label: string; score: number; level: string }[]
+  openAnswers: {
+    question: string
+    answer: string
+    score: number
+    feedback: string
+  }[]
+}
+
+/**
+ * Надіслати одну відкриту відповідь на AI-оцінку.
+ * Повертає { score: 0-10, feedback: string }
+ */
+export async function evaluateAnswer(
+  roleLabel: string,
+  question: string,
+  answer: string
+): Promise<AIEvaluation> {
+  const res = await fetch(`${BASE}/api/ai/evaluate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ roleLabel, question, answer }),
+  })
+  if (!res.ok) throw new Error('AI evaluation failed')
+  return res.json() as Promise<AIEvaluation>
+}
+
+/**
+ * Отримати загальний AI-опис кандидата після квізу.
+ * Повертає { summary: string }
+ */
+export async function generateSummary(
+  payload: AISummaryPayload
+): Promise<{ summary: string }> {
+  const res = await fetch(`${BASE}/api/ai/summary`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) throw new Error('AI summary failed')
+  return res.json() as Promise<{ summary: string }>
+}

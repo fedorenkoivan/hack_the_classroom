@@ -188,3 +188,58 @@
     font-size: 1.5rem;
   }
 }
+
+/* ─── Open-ended phase ────────────────────────────────────────────────────────── */
+
+.open-ended-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.open-ended-phase-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #7c3aed;
+  background: #ede9fe;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+}
+
+.open-ended-counter {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.open-ended-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.open-answer-textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+  background: #fafafa;
+  color: #1f2937;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.open-answer-textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background: white;
+}
+
+.open-answer-textarea::placeholder {
+  color: #9ca3af;
+}
